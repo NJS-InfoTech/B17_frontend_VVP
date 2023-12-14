@@ -1,8 +1,20 @@
 ﻿@page
 @model PrivacyModel
 @{
-    ViewData["Title"] = "Privacy Policy";
+    Layout = null; // This specifies that this page won't use the layout
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>No Layout Example</title>
+    <!-- Your specific page's styles/scripts or references here -->
+</head>
+<body>
+    <div>
+        <!-- Your page's content here without the layout elements -->
+        <h1>This page doesn't use the layout</h1>
+        <!-- Other content specific to this page -->
+    </div>
+</body>
+</html>

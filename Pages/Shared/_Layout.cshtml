@@ -74,6 +74,12 @@
                                             <span>Units Completed</span>
                                         </a>
                                     </li>
+                                    <li class="nav-item" id="unit_complete_left_navbar_vista" runat="server">
+                                        <a id="unit_complete_left_navbar_vista_href" style="color: white" class="nav-link" asp-area="" asp-page="/Privacy">
+                                            <i class="far fa-clipboard" style="font-size: 1.25rem; vertical-align: middle;"></i>
+                                            <span>No left navbar</span>
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>
                         </li>
@@ -216,8 +222,7 @@
     <script type="text/javascript">
 
         $(document).ready(function () {
-            debugger
-             var currentPath = window.location.pathname;
+            var currentPath = window.location.pathname;
             // Loop through each link in the left navbar
             $('#accordionSidebar a').each(function () {
                 var linkPath = $(this).attr('href');

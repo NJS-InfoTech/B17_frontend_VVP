@@ -161,5 +161,358 @@
     <script src="assets/assy_b17/js/datatable-export-html.js"></script>
     <script src="assets/assy_b17/js/left_sidebar_toggle.js"></script>
 
+    <script>
 
+        $(document).ready(function () {
+            Populatepartshortage();
+        });
+
+        function Populatepartshortage() {
+            var item = document.getElementById('item_id').value;
+            var url = "part_shortage_transaction.aspx/GetSchedulerData";
+            $.ajax({
+                type: "POST",
+                headers: {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Credentials": true
+                },
+                url: url,
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({ 'item': item }),
+                beforeSend: function () {
+                    $("#data_table").addClass('table-loader').show();
+                },
+                complete: function () {
+                    $("table").removeClass('table-loader').show();
+                },
+                success: function (result) {
+                    if (result.d.includes('ExceptionMessage')) {
+                        SweetAlertMessagePopup(result.d, "error");
+                    }
+                    else {
+                        if ($.fn.DataTable.isDataTable('#data_table')) {
+                            $('#data_table').DataTable().clear().rows.add(JSON.parse(result.d).data).draw();
+                        } else {
+                            var table = $('#data_table').DataTable({
+                                "dom": '<"row toolbar" <"col addButton text-right">>Bfrtip',
+                                data: JSON.parse(result.d).data,
+                                "columns": [
+                                    { "data": "jo_num", "className": "text-center" },
+                                    { "data": "jo_sched_start_date", "type": "date", "className": "text-center" },
+                                    { "data": "jo_sched_comp_date", "type": "date", "className": "text-center" },
+                                    { "data": "item", "className": "text-center" },
+                                    { "data": "current_qty", "className": "text-center" },
+                                    { "data": "total_qty", "className": "text-center" },
+                                    { "data": "catalog", "className": "text-center" },
+                                    { "data": "customer", "className": "text-center" },
+                                    { "data": "so_sched_ship_date", "type": "date", "className": "text-center" },
+                                    { "data": "short_note", "className": "text-center" },
+                                    { "data": "startcomp", "className": "text-center", "orderable": false, "searchable": false, "sorting": false },
+                                    { "data": "stop", "className": "text-center", "orderable": false, "searchable": false, "sorting": false },
+                                    { "data": "is_progress", "title": "", "orderable": false, "searchable": false, visible: false },
+                                    { "data": "add_in_mildew", "title": "", "orderable": false, "searchable": false }
+                                ],
+                                "rowCallback": function (row, data) {
+                                    var check_progress = data['is_progress'];
+                                    var data = "";
+                                    if (check_progress.includes('*')) {
+                                        data = check_progress.split('*');
+                                        check_progress = data[0];
+                                        if (data[1] != "other") {
+                                            document.getElementById('job_started_by').value = data[1];
+                                        }
+                                    }
+
+                                    if (check_progress == "yes") {
+                                        $(row).addClass('lightgreen');
+                                        document.getElementById('in_progress').value = '1';
+                                    } else {
+                                        $(row).removeClass('lightgreen');
+                                    }
+
+                                    if (document.getElementById('in_progress').value == '1') {
+                                        document.getElementById('StartJOByScanner').blur();
+                                    } else {
+                                        setTimeout(function () {
+                                            document.getElementById('StartJOByScanner').focus();
+                                        }, 500);
+                                    }
+                                },
+                                buttons: [
+                                    {
+                                        extend: 'collection',
+                                        text: '<i class="fas fa-download fa-sm text-white-50"></i> Export',
+                                        className: 'btn btn-primary btn-sm d-none d-sm-inline-block mx-1 exportOptions',
+                                        init: function (api, node, config) {
+                                            $(node).removeClass('dt-button');
+                                        },
+                                        buttons: [
+                                            $.extend(!0, {}, buttonCommon, {
+                                                extend: 'excel',
+                                                text: ' <i class="fas fa-download fa-sm text-white-50"></i> Excel',
+                                                className: 'btn btn-primary btn-sm w-100 mb-1',
+                                                init: function (api, node, config) {
+                                                    $(node).removeClass('dt-button')
+                                                },
+                                                filename: function () { return 'Part Shortage' },
+                                                exportOptions: {
+                                                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+                                                }
+                                            })
+                                        ]
+                                    }
+                                ],
+                                drawCallback: function () {
+                                    var hasRows = this.api().rows({ filter: 'applied' }).data().length > 0;
+
+                                    if (!hasRows) {
+                                        this.api().buttons('.exportOptions').disable();
+                                    }
+                                    else {
+                                        this.api().buttons('.exportOptions').enable();
+                                    }
+                                }
+                            });
+                        }
+                        $("#data_table_wrapper > .dt-buttons > .exportOptions").appendTo("div.exprt_btn");
+
+                    }
+                },
+                error: function (error, exception) {
+                    SweetAlertToastPopup(ErrorMessage(error, exception), "error");
+                }
+            });
+        }
+
+        function Stop_Click(building_id, step_id, jo_number, scheduler_data_id, notes) {
+            Swal.fire({
+                title: 'Are you sure you want to stop the job: ' + jo_number + ' ?',
+                icon: 'warning',
+                showDenyButton: true,
+                confirmButtonText: `Yes`,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: "POST",
+                        headers: {
+                            "Access-Control-Allow-Origin": "*",
+                            "Access-Control-Allow-Credentials": true
+                        },
+                        url: "part_shortage_transaction.aspx/StopClick",
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({ 'building17_data_id': building_id, 'scheduler_data_id': scheduler_data_id, 'step_id': step_id, 'notes': notes }),
+                        dataType: "json",
+                        success: function (result) {
+                            if (result.d.includes('ExceptionMessage')) {
+                                SweetAlertMessagePopup(result.d, "error");
+                            }
+                            else {
+                                SweetAlertSuccess('Job stopped successfully!', 'success');
+                                document.getElementById('job_started_by').value = "";
+                                document.getElementById('in_progress').value = '0';
+                                Populatepartshortage();
+                            }
+                        },
+                        error: function (error, exception) {
+                            SweetAlertMessagePopup(ErrorMessage(error, exception), "error");
+                        }
+                    });
+                }
+            })
+        }
+
+        function StartJob(building17_data_id, job_no) {
+            var in_progress = document.getElementById('in_progress').value
+            var started_by = document.getElementById('job_started_by').value;
+            if (in_progress == "1" && started_by == "progress") {
+                SweetAlertMessagePopup('Job is already in progress!', 'warning');
+            }
+            else {
+                Swal.fire({
+                    title: 'Are you sure you want to start the job: ' + job_no + ' ?',
+                    icon: 'warning',
+                    showDenyButton: true,
+                    confirmButtonText: `Yes`,
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: "POST",
+                            headers: {
+                                "Access-Control-Allow-Origin": "*",
+                                "Access-Control-Allow-Credentials": true
+                            },
+                            url: "part_shortage_transaction.aspx/StartJobNo",
+                            contentType: "application/json; charset=utf-8",
+                            data: JSON.stringify({ 'building17_data_id': building17_data_id }),
+                            dataType: "json",
+                            success: function (result) {
+                                if (result.d.includes('ExceptionMessage')) {
+                                    SweetAlertMessagePopup(result.d, "error");
+                                }
+                                else {
+                                    SweetAlertSuccess('Job started successfully!', 'success');
+                                    document.getElementById('StartJOByScanner').value = "";
+                                    Populatepartshortage();
+                                    event.preventDefault();
+                                }
+                            },
+                            error: function (error, exception) {
+                                SweetAlertMessagePopup(ErrorMessage(error, exception), "error");
+                            }
+                        });
+                    }
+                })
+            }
+        }
+
+        function CompleteJob(building17_data_id, step_id, job_no) {
+            Swal.fire({
+                title: 'Are you sure you want to complete the job: ' + job_no + ' ?',
+                icon: 'warning',
+                showDenyButton: true,
+                confirmButtonText: `Yes`,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: "POST",
+                        headers: {
+                            "Access-Control-Allow-Origin": "*",
+                            "Access-Control-Allow-Credentials": true
+                        },
+                        url: "part_shortage_transaction.aspx/CompleteJobNo",
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({ 'building17_data_id': building17_data_id, 'step_id': step_id }),
+                        dataType: "json",
+                        success: function (result) {
+                            if (result.d.includes('ExceptionMessage')) {
+                                SweetAlertMessagePopup(result.d, "error");
+                            }
+                            else {
+                                SweetAlertSuccess('Job completed successfully!', 'success');
+                                document.getElementById('in_progress').value = '0';
+                                document.getElementById('job_started_by').value = "";
+                                Populatepartshortage();
+                                event.preventDefault();
+                            }
+                        },
+                        error: function (error, exception) {
+                            SweetAlertMessagePopup(ErrorMessage(error, exception), "error");
+                        }
+                    });
+                }
+            })
+        }
+
+        function TrapEnterKey(e) {
+            var scanner_jo_number = document.getElementById("StartJOByScanner").value;
+            var job_inprogress = document.getElementById('in_progress').value;
+            var item = document.getElementById('item_id').value;
+            var started_by = document.getElementById('job_started_by').value;
+            var Ucode = e.keyCode ? e.keyCode : e.charCode
+            if (Ucode == 13 || Ucode == 9) {
+                if (scanner_jo_number != "") {
+                    $.ajax({
+                        type: "POST",
+                        headers: {
+                            "Access-Control-Allow-Origin": "*",
+                            "Access-Control-Allow-Credentials": true
+                        },
+                        url: "part_shortage_transaction.aspx/CheckValidJobNumber",
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({ 'scanner_jo_number': scanner_jo_number, 'item': item }),
+                        dataType: "json",
+                        success: function (result) {
+                            if (result.d.includes('ExceptionMessage')) {
+                                SweetAlertMessagePopup(result.d, "error");
+                            }
+                            else {
+                                if (result.d == "no") {
+                                    SweetAlertMessagePopup('In-valid job number!', 'error');
+                                }
+                                else {
+                                    if (job_inprogress == "1" && started_by == "progress") {
+                                        SweetAlertMessagePopup('Job is already in progress!', 'warning');
+                                    }
+                                    else {
+                                        StartJob(result.d, scanner_jo_number);
+                                    }
+                                }
+                            }
+                        },
+                        error: function (error, exception) {
+                            SweetAlertMessagePopup(ErrorMessage(error, exception), "error");
+                        }
+                    });
+                }
+            }
+        }
+
+        function NotesModal(id, notes) {
+            notes = notes.replaceAll("<br />", "\n")
+            $("#edit_notes").val(notes);
+            $("#id_for_notes").val(id);
+        }
+
+        function EditNotes() {
+            $("#edit_notes_modal").modal('hide');
+            var notes = $("#edit_notes").val();
+            var id = $("#id_for_notes").val();
+            $.ajax({
+                type: "POST",
+                headers: {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Credentials": true
+                },
+                url: "part_shortage_transaction.aspx/EditNotes",
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({ 'notes': notes, 'id': id }),
+                dataType: "json",
+                success: function (result) {
+                    if (result.d.includes('ExceptionMessage')) {
+                        SweetAlertMessagePopup(result.d, "error");
+                    }
+                    else {
+                        SweetAlertMessagePopup('Updated notes successfully', 'success');
+                        Populatepartshortage();
+                    }
+                },
+                error: function (error, exception) {
+                    SweetAlertMessagePopup(ErrorMessage(error, exception), "error");
+                }
+            });
+        }
+
+        var buttonCommon = {
+            exportOptions: {
+                format: {
+                    header: function (data, column, row) {
+                        return data.replace("<br/>", "\n");
+                    },
+                    body: function (data, row, column, node) {
+                        var newData = data.toString().replace("<br/>", "\n")
+                        if (isHTMLExport(newData)) {
+                            if ($(newData).find('input').length) {
+                                return $(newData).find('input').val()
+                            } else {
+                                return $(newData).html()
+                            }
+                        } else {
+                            return newData
+                        }
+                    }
+                }
+            }
+        };
+
+        function MildewPartRequest(url) {
+            var win = window.open(url, '_blank');
+            win.focus();
+        }
+    </script>
 </body>
