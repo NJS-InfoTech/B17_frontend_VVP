@@ -1,0 +1,165 @@
+﻿@page
+@model part_shortage_transactionModel
+@{
+}
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Part Shortage</title>
+
+    <link rel="icon" type="image/svg+xml" sizes="150x150" href="assets/img/MOM_title_logo.svg">
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
+    <link rel="stylesheet" href="assets/css/bootstrap-green.css">
+    <link rel="stylesheet" href="assets/assy_b17/css/simplebar.css" />
+    <link href="assets/plugins/data-tables/datatables.bootstrap4.min.css" rel="stylesheet" />
+    <link href="assets/plugins/data-tables/datatable.css" rel="stylesheet" />
+    <link href="assets/plugins/data-tables/jquery-datatable.css" rel="stylesheet" />
+    <link href="assets/plugins/data-tables/buttons.min.css" rel="stylesheet" />
+    <link href="assets/assy_b17/css/ajax-datatable-load.css" rel="stylesheet" />
+
+    <style type="text/css">
+        /* Chrome, Safari, Edge, Opera */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Firefox */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        .text-center {
+            text-align: center !important;
+        }
+
+        div.dt-button-collection {
+            width: 80px !important;
+            padding: 4px 4px 4px 4px !important;
+        }
+
+        .breadcrumb {
+            padding: 1px 15px !important;
+        }
+
+        .lightgreen {
+            background-color: lightgreen !important;
+        }
+
+        .GreenText {
+            color: green !important;
+            text-decoration: solid;
+        }
+    </style>
+</head>
+
+<body id="page-top" class="vh-100">
+    <input type="hidden" id="admin_access" />
+    <input type="hidden" runat="server" id="auto_id" />
+    <input type="hidden" runat="server" id="team_member" />
+    <input type="hidden" runat="server" id="request_id" />
+    <input type="hidden" runat="server" id="in_progress" />
+    <input type="hidden" runat="server" id="item_id" />
+    <input type="hidden" runat="server" id="job_started_by" />
+
+    <div class="flex-grow" data-simplebar="" style="min-height: 0">
+        <div class="container-fluid">
+            <div class="row mb-5">
+                <div class="col">
+                    <div class="card shadow">
+                        <div class="card-header py-1">
+                            <div class="row">
+                                <div class="col my-auto">
+                                    <p class="text-primary m-0 font-weight-bold" id="card_header" runat="server">Vista Part Shortage</p>
+                                </div>
+                                <div class="col exprt_btn" style="text-align: right;"></div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-lg-4 col-sm-6" id="scan_jo_no_div" runat="server">
+                                    <label><b>SCAN JO Number:</b></label>
+                                    <input id="StartJOByScanner" runat="server" type="number" onkeydown="return TrapEnterKey(event)" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="table-responsive text-center table mt-2" id="dataTable-1" role="grid" aria-describedby="dataTable_info" style="width: 100%">
+                                        <table class="table my-0 compact text-center" style="width: 100%;" id="data_table">
+                                            <thead>
+                                                <tr>
+                                                    <th>JO Number</th>
+                                                    <th>JO Sched Start Date</th>
+                                                    <th>JO Sched Completion Date</th>
+                                                    <th>Item</th>
+                                                    <th>Current Qty</th>
+                                                    <th>Total Qty</th>
+                                                    <th>Catalog</th>
+                                                    <th>Customer</th>
+                                                    <th>SO Sched Ship Date</th>
+                                                    <th>Notes</th>
+                                                    <th></th>
+                                                    <th></th>
+                                                    <th></th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="edit_notes_modal" class="modal">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="width: 1232px">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="modal_header">Edit Notes</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <textarea id="edit_notes" class="form-control" style="width: 100%; height: 100%;"></textarea>
+                                <input type="hidden" id="id_for_notes">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-light" type="button" data-dismiss="modal">Close</button>
+                    <button class="btn btn-primary" type="button" onclick="EditNotes()">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/js/chart.min.js"></script>
+    <script src="assets/js/bs-init.js"></script>
+    <script src="assets/assy_b17/js/left_side_bar.js"></script>
+    <script src="assets/assy_b17/js/jquery.easing.js"></script>
+    <script src="assets/assy_b17/js/simplebar.js"></script>
+    <script src="assets/plugins/data-tables/datatable.js"></script>
+    <script src="assets/plugins/data-tables/jquery.datatables.min.js"></script>
+    <script src="assets/plugins/data-tables/buttons.min.js"></script>
+    <script src="assets/plugins/data-tables/jszip.min.js"></script>
+    <script src="assets/plugins/data-tables/buttons.html5.min.js"></script>
+    <script src="assets/assy_b17/js/modalpopup.js"></script>
+    <script src="assets/assy_b17/js/ajax-setup.js"></script>
+    <script src="assets/assy_b17/js/ajax-exception.js"></script>
+    <script src="assets/assy_b17/js/sweet-alert-msg-popup.js"></script>
+    <script src="assets/assy_b17/js/datatable-export-html.js"></script>
+    <script src="assets/assy_b17/js/left_sidebar_toggle.js"></script>
+
+
+</body>

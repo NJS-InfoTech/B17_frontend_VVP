@@ -1,0 +1,268 @@
+﻿@page
+@model units_complete_reportModel
+@{
+}
+<head>
+
+    <style>
+        .table-success {
+            background-color: green !important;
+        }
+
+        .btn-primary {
+            color: #fff;
+            background-color: #008455 !important;
+            border-color: #008455 !important;
+        }
+
+    </style>
+
+
+    <link rel="icon" type="image/svg+xml" sizes="150x150" href="assets/img/MOM_title_logo.svg">
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
+    <link rel="stylesheet" href="assets/css/bootstrap-green.css">
+    <link rel="stylesheet" href="assets/assy_b17/css/simplebar.css" />
+    <link href="assets/plugins/data-tables/datatables.bootstrap4.min.css" rel="stylesheet" />
+    <link href="assets/plugins/data-tables/datatable.css" rel="stylesheet" />
+    <link href="assets/plugins/data-tables/jquery-datatable.css" rel="stylesheet" />
+    <link href="assets/plugins/data-tables/buttons.min.css" rel="stylesheet" />
+    <link href="assets/assy_b17/css/ajax-datatable-load.css" rel="stylesheet" />
+
+</head>
+
+<body id="page-top" class="vh-100">
+    <div class="flex-grow" data-simplebar="" style="min-height: 0">
+        <div class="container-fluid">
+            <div class="row mb-3">
+                <div class="col">
+                    <div class="card shadow">
+                        <div class="card-header py-1">
+                            <div class="row">
+                                <div class="col my-auto">
+                                    <p class="text-primary m-0 font-weight-bold" id="card_header">Vista Units Completed Report</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="form-group col-sm-12 col-md-4 col-lg-4 col-xl-4 mb-1">
+                                    <label><b>JO Number:</b></label>
+                                    <input id="job_number" runat="server" type="number" class="form-control" onchange="ClearDates()" />
+                                </div>
+                                <div class="form-group col-sm-12 col-md-4 col-lg-4 col-xl-4 mb-1">
+                                    <label><b>Start Date:</b></label>
+                                    <input id="start_date" runat="server" type="date" class="form-control" onchange="ClearJob()" />
+                                </div>
+                                <div class="form-group col-sm-12 col-md-4 col-lg-4 col-xl-4 mb-1">
+                                    <label><b>End Date:</b></label>
+                                    <input id="end_date" runat="server" type="date" class="form-control" onchange="ClearJob()" />
+                                </div>
+                            </div>
+                            <div class="row mt-4">
+                                <div class="col-sm-12 text-center">
+                                    <button class="btn btn-primary" type="button" onclick="submit_btn_click()">Submit</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-5">
+                <div class="col">
+                    <div class="card shadow">
+                        <div class="card-header py-1">
+                            <div class="row">
+                                <div class="col my-auto">
+                                    <p class="text-primary m-0 font-weight-bold" id="datatable_card_header" runat="server">Unit Complete Report</p>
+                                </div>
+                                <div class="col exprt_btn" style="text-align: right;">
+                                    <button type="button" class="btn btn-primary">
+                                        <i class="fas fa-download fa-sm text-white-50"></i> Export
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body" style="overflow: hidden;">
+                            <div class="row">
+                                <div class="col-lg-4 col-sm-6" id="scan_jo_no_div">
+                                    <label><b>SCAN JO Number:</b></label>
+                                    <input type="text" class="form-control" id="scan_jo_input">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="table-responsive text-center table mt-2" id="dataTable-1" role="grid" aria-describedby="dataTable_info" style="width: 100%; overflow: hidden" ;>
+                                        <table class="table my-0 compact text-center" style="width: 100%;" id="data_table">
+                                            <thead>
+                                                <tr>
+                                                    <th style="white-space: nowrap">JO Number</th>
+                                                    <th style="white-space: nowrap">JO Sched Start Date</th>
+                                                    <th style="white-space: nowrap">JO Sched Completion Date</th>
+                                                    <th style="white-space: nowrap">Item</th>
+                                                    <th style="white-space: nowrap">Current Qty</th>
+                                                    <th style="white-space: nowrap">Total Qty</th>
+                                                    <th style="white-space: nowrap">Catalog</th>
+                                                    <th style="white-space: nowrap">Customer</th>
+                                                    <th style="white-space: nowrap">SO Sched Ship Date</th>
+                                                    <th style="white-space: nowrap">Notes</th>
+                                                    <th style="white-space: nowrap">Completed By</th>
+                                                    <th style="white-space: nowrap">Started By</th>
+                                                    <th style="white-space: nowrap">TAKT Time</th>
+                                                    <th></th>
+                                                    <th></th>
+                                                    <th></th>
+                                                    <th></th>
+                                                    <th>Comment</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr id="jobRow">
+                                                    <td style="white-space: nowrap">@Model.Data.JoNumber</td>
+                                                    <td style="white-space: nowrap">@Model.Data.JoSchedStartDate.ToShortDateString()</td>
+                                                    <td style="white-space: nowrap">@Model.Data.JoSchedCompletionDate.ToShortDateString()</td>
+                                                    <td style="white-space: nowrap">@Model.Data.Item</td>
+                                                    <td style="white-space: nowrap">@Model.Data.CurrentQty</td>
+                                                    <td style="white-space: nowrap">@Model.Data.TotalQty</td>
+                                                    <td style="white-space: nowrap">@Model.Data.Catalog</td>
+                                                    <td style="white-space: nowrap">@Model.Data.Customer</td>
+                                                    <td style="white-space: nowrap">@Model.Data.SoSchedShipDate.ToShortDateString()</td>
+                                                    <td style="white-space: nowrap">@Model.Data.Notes</td>
+                                                    <td style="white-space: nowrap">@Model.Data.CompletedBy</td>
+                                                    <td style="white-space: nowrap">@Model.Data.StartedBy</td>
+                                                    <td style="white-space: nowrap">@Model.Data.TaktTime</td>
+                                                    <td>
+                                                        <!-- Add a Bootstrap button with the btn-success class -->
+                                                        <button type="button" class="btn-sm btn btn-success text-nowrap" onclick="startButtonClick()">Start</button>
+                                                    </td>
+                                                    <td>
+                                                        <button type="button" class="btn-sm btn btn-warning text-nowrap">Part Storage</button>
+                                                    </td>
+                                                    <td> <button type="button" class="btn-sm btn btn-info text-nowrap">Add In Mildew </button></td>
+                                                    <td> <button id="stopButton" class="btn-sm btn btn-danger d-none" onclick="stopButtonClick()">Stop</button>
+                                                    <td><i class="fas fa-pencil-alt d-none" style="color: green;" id="pencilIcon"></i></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/js/chart.min.js"></script>
+    <script src="assets/js/bs-init.js"></script>
+    <script src="assets/assy_b17/js/left_side_bar.js"></script>
+    <script src="assets/assy_b17/js/jquery.easing.js"></script>
+    <script src="assets/assy_b17/js/simplebar.js"></script>
+    <script src="assets/plugins/data-tables/datatable.js"></script>
+    <script src="assets/plugins/data-tables/jquery.datatables.min.js"></script>
+    <script src="assets/plugins/data-tables/buttons.min.js"></script>
+    <script src="assets/plugins/data-tables/jszip.min.js"></script>
+    <script src="assets/plugins/data-tables/buttons.html5.min.js"></script>
+    <script src="assets/assy_b17/js/modalpopup.js"></script>
+    <script src="assets/assy_b17/js/ajax-setup.js"></script>
+    <script src="assets/assy_b17/js/ajax-exception.js"></script>
+    <script src="assets/assy_b17/js/sweet-alert-msg-popup.js"></script>
+    <script src="assets/assy_b17/js/datatable-export-html.js"></script>
+    <script src="assets/assy_b17/js/left_sidebar_toggle.js"></script>
+
+    <script>
+
+        $(document).ready(function () {
+
+        });
+
+        function submit_btn_click() {
+            debugger
+            var job_number = document.getElementById('job_number').value;
+            var start_date = document.getElementById('start_date').value;
+            var end_date = document.getElementById('end_date').value;
+
+            if (job_number == "" && start_date == "" && end_date == "") {
+                SweetAlertMessagePopup('Please enter job number or select dates!', 'error');
+                return false;
+            }
+            else if (start_date != "" && end_date == "") {
+                SweetAlertMessagePopup('Please select end date!', 'error');
+                return false;
+            }
+            else if (start_date == "" && end_date != "") {
+                SweetAlertMessagePopup('Please select start date!', 'error')
+                return false;
+            }
+            else if (Date.parse(start_date) > Date.parse(end_date)) {
+                SweetAlertMessagePopup("End date should be greater than Start date!", "error");
+                return false;
+            }
+            else {
+                PopulateCompletedJobs(job_number, start_date, end_date);
+            }
+        }
+
+        function PopulateCompletedJobs(job_number, start_date, end_date) {
+            $('#data_table').DataTable({
+                scrollX: true, // Enable horizontal scrolling
+                "columnDefs": [
+                    { "orderable": false, "targets": [13, 14, 15, 16, 17] } // Make columns 15, 16, 17, and 18 non-orderable
+                ]
+            });
+        }
+
+        function startButtonClick() {
+            var jobNumber = "@Model.Data.JoNumber";
+            Swal.fire({
+                title: 'Are you sure you want to start the job: ' + jobNumber + ' ?',
+                icon: 'warning',
+                showDenyButton: true,
+                confirmButtonText: 'Yes',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        icon: 'success',
+                        text: 'Job started successfully.',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                    document.getElementById('stopButton').classList.remove('d-none');
+                    document.getElementById('pencilIcon').classList.remove('d-none');
+
+                    document.getElementById('jobRow').style.backgroundColor = 'rgba(0, 128, 0, 0.5)';
+                }
+            });
+        }
+
+        function stopButtonClick() {
+            var jobNumber = "@Model.Data.JoNumber";
+            Swal.fire({
+                title: 'Are you sure you want to stop the job: ' + jobNumber + ' ?',
+                icon: 'warning',
+                showDenyButton: true,
+                confirmButtonText: 'Yes',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        icon: 'success',
+                        text: 'Job stopped successfully.',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                    $('tr').removeClass('selected-row');
+                    document.getElementById('stopButton').classList.add('d-none');
+                    document.getElementById('pencilIcon').classList.add('d-none');
+                    document.getElementById('jobRow').style.backgroundColor = 'rgba(0, 128, 0, 0)';
+                }
+            });
+        }
+    </script>
+</body>
