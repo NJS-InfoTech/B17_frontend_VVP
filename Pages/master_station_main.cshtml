@@ -1,0 +1,224 @@
+﻿@page
+@model master_station_mainModel
+@{
+}
+<head>
+    <style>
+        .btn-success {
+            color: #fff;
+            background-color: #008455 !important;
+            border-color: #008455 !important;
+        }
+    </style>
+   
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.css" />
+    <link rel="icon" type="image/svg+xml" sizes="150x150" href="assets/img/MOM_title_logo.svg">
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
+    <link rel="stylesheet" href="assets/css/bootstrap-green.css">
+    <link rel="stylesheet" href="assets/assy_b17/css/simplebar.css" />
+    <link href="assets/plugins/data-tables/buttons.min.css" rel="stylesheet" />
+</head>
+<body id="page-top" class="vh-100">
+    <div class="flex-grow" data-simplebar="" style="min-height: 0">
+        <div class="container-fluid">
+            <div class="row mb-5">
+                <div class="col">
+                    <div class="card shadow">
+                        <div class="card-header py-1">
+                            <div class="row">
+                                <div class="col my-auto">
+                                    <p class="text-primary m-0 font-weight-bold" style="color: #007647 !important;">@Html.Raw("<strong>" + @Model.HardcodedText + "</strong>")</p>
+                                </div>
+                                <div class="col exprt_btn" style="text-align: right;">
+                                    <button type="button" class="btn btn-success" onclick="editButtonClick()">
+                                        <i class="fas fa-download reduced-opacity"></i> Export
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body" style="overflow: hidden;">
+                            <div class="row">
+                                <div class="col-lg-4 col-sm-6" id="scan_jo_no_div">
+                                    <label><b>SCAN JO Number:</b></label>
+                                    <input type="text" class="form-control" id="scan_jo_input">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="table-responsive text-center table mt-2" id="dataTable-1" role="grid" aria-describedby="dataTable_info" style="width: 100%; overflow: hidden" ;>
+                                        <table class="table my-0 compact text-center" style="width: 100%;" id="data_table">
+                                            <thead>
+                                                <tr>
+                                                    <th>JO Number</th>
+                                                    <th>JO Sched Start Date</th>
+                                                    <th>JO Sched Completion Date</th>
+                                                    <th>Item</th>
+                                                    <th>Current Qty</th>
+                                                    <th>Total Qty</th>
+                                                    <th>Catalog</th>
+                                                    <th>Customer</th>
+                                                    <th>SO Sched Ship Date</th>
+                                                    <th>Notes</th>
+                                                    <th>Completed By</th>
+                                                    <th>Started By</th>
+                                                    <th>TAKT Time</th>
+                                                    <th></th>
+                                                    <th></th>
+                                                    <th></th>
+                                                    <th></th>
+                                                    <th>Comment</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr id="jobRow">
+                                                    <td>@Model.Data.JoNumber</td>
+                                                    <td>@Model.Data.JoSchedStartDate.ToShortDateString()</td>
+                                                    <td>@Model.Data.JoSchedCompletionDate.ToShortDateString()</td>
+                                                    <td>@Model.Data.Item</td>
+                                                    <td>@Model.Data.CurrentQty</td>
+                                                    <td>@Model.Data.TotalQty</td>
+                                                    <td>@Model.Data.Catalog</td>
+                                                    <td>@Model.Data.Customer</td>
+                                                    <td>@Model.Data.SoSchedShipDate.ToShortDateString()</td>
+                                                    <td>@Model.Data.Notes</td>
+                                                    <td>@Model.Data.CompletedBy</td>
+                                                    <td>@Model.Data.StartedBy</td>
+                                                    <td>@Model.Data.TaktTime</td>
+                                                    <td>
+                                                        <button id="CompleteButton" class="btn-sm btn btn-info d-none" onclick="CompleteButtonClick()">Complete</button>
+                                                        <button type="button" id="Startbutton" class="btn-sm btn btn-success text-nowrap" onclick="startButtonClick()">Start</button>
+                                                    </td>
+                                                    <td>
+                                                        <button type="button" class="btn-sm btn btn-warning text-nowrap">Part Storage</button>
+                                                    </td>
+                                                    <td> <button type="button" class="btn-sm btn btn-info text-nowrap">Add In Mildew </button></td>
+                                                    <td> <button id="stopButton" class="btn-sm btn btn-danger d-none" onclick="stopButtonClick()">Stop</button>
+                                                    <td> <i class="fas fa-pencil-alt d-none" style="color: green;" id="pencilIcon"></i></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" role="dialog" tabindex="-1" id="commentModal" data-backdrop="static">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Add Comment</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="customCloseButton"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body was-validated">
+                    <div class="form-group">
+                        <label class="font-weight-bold">Comment</label>
+                        <textarea type="text" id="comment" class="form-control mb-2" placeholder="Enter Comment" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" type="button" onclick="AddComment()">Add Comment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/js/chart.min.js"></script>
+    <script src="assets/js/bs-init.js"></script>
+    <script src="assets/assy_b17/js/left_side_bar.js"></script>
+    <script src="assets/assy_b17/js/jquery.easing.js"></script>
+    <script src="assets/assy_b17/js/simplebar.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="assets/assy_b17/js/modalpopup.js"></script>
+    <script src="assets/assy_b17/js/ajax-setup.js"></script>
+    <script src="assets/assy_b17/js/ajax-exception.js"></script>
+    <script src="assets/assy_b17/js/sweet-alert-msg-popup.js"></script>
+    <script src="assets/assy_b17/js/left_sidebar_toggle.js"></script>
+    <script>
+
+        $(document).ready(function () {
+            $('#data_table').DataTable({
+                scrollX: true, // Enable horizontal scrolling
+                "lengthChange": false,
+                "columnDefs": [
+                    { "orderable": false, "targets": [13, 14, 15, 16, 17] } // Make columns 15, 16, 17, and 18 non-orderable
+                ]
+
+            });
+            // Add a click event listener to the edit icon
+            $('#pencilIcon').click(function () {
+                // Show the modal when the icon is clicked
+                $('#commentModal').modal('show');
+            });
+            $('#customCloseButton').click(function () {
+                // Close the modal
+                $('#commentModal').modal('hide');
+            });
+          
+        });
+        function startButtonClick() {
+            var jobNumber = "@Model.Data.JoNumber";
+            Swal.fire({
+                title: 'Are you sure you want to start the job: ' + jobNumber + ' ?',
+                icon: 'warning',
+                showDenyButton: true,
+                confirmButtonText: 'Yes',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        icon: 'success',
+                        text: 'Job started successfully.',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                    document.getElementById('stopButton').classList.remove('d-none');
+                    document.getElementById('pencilIcon').classList.remove('d-none');
+                    document.getElementById('Startbutton').classList.add('d-none');
+                    document.getElementById('CompleteButton').classList.remove('d-none');
+                    document.getElementById('jobRow').style.backgroundColor = ' #90EE90 ';
+                }
+            });
+        }
+
+        function stopButtonClick() {
+            var jobNumber = "@Model.Data.JoNumber";
+            Swal.fire({
+                title: 'Are you sure you want to stop the job: ' + jobNumber + ' ?',
+                icon: 'warning',
+                showDenyButton: true,
+                confirmButtonText: 'Yes',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        icon: 'success',
+                        text: 'Job stopped successfully.',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                    $('tr').removeClass('selected-row');
+                    document.getElementById('stopButton').classList.add('d-none');
+                    document.getElementById('pencilIcon').classList.add('d-none');
+                    document.getElementById('Startbutton').classList.remove('d-none');
+                    document.getElementById('CompleteButton').classList.add('d-none');
+                    document.getElementById('jobRow').style.backgroundColor = 'rgba(0, 128, 0, 0)';
+                }
+            });
+        }
+       
+      
+    </script>
+
+
+</body>

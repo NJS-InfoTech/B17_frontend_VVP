@@ -3,10 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Building_17_VVP</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/Building_17_VVP.styles.css" asp-append-version="true" />
+    <title>@ViewData["Title"] - Building_17</title>
+  
 
     <style type="text/css">
         .breadcrumb {
@@ -39,13 +37,13 @@
                             <div class="collapse" id="submenu1" aria-expanded="false">
                                 <ul class="flex-column nav">
                                     <li class="nav-item" id="micro_assy_left_navbar" runat="server">
-                                        <a id="micro_assy_left_navbar_href" runat="server" style="color: white" class="nav-link" href="../master_step_main.aspx?step_id=1&item=2">
+                                        <a id="micro_assy_left_navbar_href" runat="server" style="color: white" class="nav-link" asp-area="" asp-page="/master_station_main">
                                             <i class="fas fa-hdd" style="font-size: 1.25rem; vertical-align: middle;"></i>
                                             <span>Assembly</span>
                                         </a>
                                     </li>
                                     <li class="nav-item" id="micro_pre_ins_left_navbar" runat="server">
-                                        <a id="micro_pre_ins_left_navbar_href" runat="server" style="color: white" class="nav-link" href="../master_step_main.aspx?step_id=2&item=2">
+                                        <a id="micro_pre_ins_left_navbar_href" runat="server" style="color: white" class="nav-link" asp-area="" asp-page="/Dummy">
                                             <i class="fas fa-hdd" style="font-size: 1.25rem; vertical-align: middle;"></i>
                                             <span>Pre-Inspection</span>
                                         </a>
@@ -199,12 +197,6 @@
         </div>
     </div>
 
-    <script src="assets/js/jquery.min.js"></script>
-
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-
     @await RenderSectionAsync("Scripts", required: false)
 
     <style type="text/css">
@@ -216,7 +208,6 @@
     <script type="text/javascript">
 
         $(document).ready(function () {
-            debugger
              var currentPath = window.location.pathname;
             // Loop through each link in the left navbar
             $('#accordionSidebar a').each(function () {
@@ -226,10 +217,6 @@
                 if (currentPath === linkPath) {
                     // Add a class to highlight the active link
                     $(this).addClass('active');
-
-                    // Optionally, you can also highlight the parent collapse element if needed
-                    $(this).closest('.collapse').addClass('show');
-                    $(this).closest('.nav-item').addClass('active');
                 }
             });
 
@@ -283,8 +270,8 @@
                 $("#micro_at_left_navbar").css("background-color", "#008455");
                 color_micro = 0;
             }
-
         });
+       
 
     </script>
 </body>
